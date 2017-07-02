@@ -1,0 +1,105 @@
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=1">
+		<style>
+			html {
+				height: 100%;
+			}
+			body {
+				height: 100%;
+				background-color: #404060;
+				color: white;
+				font-family: "Century Gothic", sans-serif;
+				font-size: 16px;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+			}
+			* {
+				box-sizing: border-box;
+			}
+			textarea {
+				width: 100%;
+				height: 300px;
+			}
+			.status {
+				text-align: center;
+				font-size: 3em;
+			}
+			.statusHint {
+				margin-top: 20px;
+				text-align: center;
+				color: rgba(255, 255,255, 0.3);
+			}
+			.address {
+				text-align: center;
+			}
+			.hidden {
+				display: none;
+			}
+			.balance {
+				margin-top: 20px;
+				text-align: center;
+				font-size: 3em;
+			}
+			.balance::after {
+				content: ' BTC';
+			}
+		</style>
+	</head>
+	<body>
+		<div class="status"></div>
+		<div class="statusHint"></div>
+		<div class="data">
+			<div class="address"></div>
+			<div class="balance"></div>
+		</div>
+		<script>
+			var sckt = new WebSocket("ws://" + location.host)
+			function showIf(el, v) {
+				el = document.querySelector(el)
+				if (v)
+					el.classList.remove('hidden')
+				else
+					el.classList.add('hidden')
+			}
+			function setV(el, v) {
+				document.querySelector(el).innerText = v
+			}
+			sckt.onmessage = function(event) {
+				var d = JSON.parse(event.data)
+				showIf('.status', d.status != 'READY')
+				showIf('.statusHint', d.status != 'READY')
+				showIf('.data', d.status == 'READY')
+				
+				switch (d.status) {
+					case 'IDLE':
+						setV('.status', 'ready');
+						setV('.statusHint', 'connect Opendime...');
+						break;
+					case 'READING':
+						setV('.status', 'reading...');
+						setV('.statusHint', 'reading data...');
+						break;
+					case 'BALANCE':
+						setV('.status', 'balance...');
+						setV('.statusHint', 'retrieving data...');
+						break;
+					case 'READY':
+						setV('.status', 'ready');
+						setV('.statusHint', 'safe to disconnect...');
+						showIf('.balance', d.balance)
+						if (d.address) {
+							setV('.address', d.address)
+							setV('.balance', d.balance)
+						} else {
+							setV('.address', 'not initialized')
+						}
+						break;
+					default:
+						break;
+				}
+			}
+		</script>
+	</body>
+</html>

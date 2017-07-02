@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "bitcore-message": "^1.0.4",
+    "bluebird": "^3.5.0",
+    "request": "^2.81.0",
+    "send": "^0.15.3",
+    "usb-detection": "1.*",
+    "ws": "^3.0.0"
+  }
+}
